@@ -335,7 +335,7 @@ export default function SavedWordsPage() {
                     required
                     value={formData.word}
                     onChange={(e) => setFormData({ ...formData, word: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 rounded-lg border text-black border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     placeholder="e.g., Serendipity"
                   />
                 </div>
@@ -347,7 +347,7 @@ export default function SavedWordsPage() {
                     required
                     value={formData.meaning}
                     onChange={(e) => setFormData({ ...formData, meaning: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 rounded-lg border text-black border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
                     placeholder="e.g., The occurrence of events by chance in a happy way"
                     rows={3}
                   />
