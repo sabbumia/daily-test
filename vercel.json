@@ -1,0 +1,9 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/generate-test",
+      "schedule": "0 9 * * *",
+      "description": "Generate daily test at 3 PM Bangladesh Time"
+    }
+  ]
+}
