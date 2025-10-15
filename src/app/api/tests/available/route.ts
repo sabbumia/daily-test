@@ -1,9 +1,9 @@
 // app/api/tests/available/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { dailyTests, userTestAttempts } from '@/db/schema';
+import { dailyTests, userTestAttempts, users } from '@/db/schema';
 import { authenticateRequest } from '@/lib/authMiddleware';
-import { eq, and, lt } from 'drizzle-orm';
+import { eq, and, lt, gte } from 'drizzle-orm';
 
 export async function GET(req: NextRequest) {
   const auth = authenticateRequest(req);
@@ -12,10 +12,24 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Get all tests ordered by date
+    // Get user's registration date
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, auth.userId))
+      .limit(1);
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const registrationDate = user.createdAt.toISOString().split('T')[0];
+
+    // Get all tests on or after user's registration date
     const allTests = await db
       .select()
       .from(dailyTests)
+      .where(gte(dailyTests.testDate, registrationDate))
       .orderBy(dailyTests.testDate);
 
     // Get user's completed tests
@@ -53,6 +67,7 @@ export async function GET(req: NextRequest) {
       progress: userProgress,
       totalTests: allTests.length,
       completedCount: completedTests.length,
+      registrationDate,
     });
   } catch (error) {
     console.error('Error fetching tests:', error);

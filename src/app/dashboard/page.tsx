@@ -20,6 +20,7 @@ interface DashboardData {
   progress: TestProgress[];
   totalTests: number;
   completedCount: number;
+  registrationDate?: string; // Added this property
 }
 
 export default function DashboardPage() {
@@ -94,12 +95,23 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold text-gray-900">English Learning Platform</h1>
             <p className="text-sm text-gray-600 mt-1">Welcome back, {user?.name}!</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-          >
-            Logout
-          </button>
+          <div className="flex items-center space-x-4">
+            <Link
+              href="/saved-words"
+              className="flex items-center px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 border border-indigo-300 rounded-lg hover:bg-indigo-50 transition"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+              Saved Words
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -178,6 +190,15 @@ export default function DashboardPage() {
         <div className="bg-white rounded-lg shadow">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">Test History</h2>
+            {data && data.registrationDate && (
+              <p className="text-sm text-gray-600 mt-1">
+                Showing tests from {new Date(data.registrationDate).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                })} onwards
+              </p>
+            )}
           </div>
           <div className="p-6">
             {data && data.progress.length > 0 ? (

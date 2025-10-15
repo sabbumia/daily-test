@@ -40,6 +40,8 @@ export default function TestPage() {
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState<any>(null);
   const [error, setError] = useState('');
+  const [savedWordIds, setSavedWordIds] = useState<Set<string>>(new Set());
+  const [savingWord, setSavingWord] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -87,6 +89,41 @@ export default function TestPage() {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = answer;
     setAnswers(newAnswers);
+  };
+
+  const handleSaveWord = async (word: WordTest) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    setSavingWord(word.word);
+
+    try {
+      const response = await fetch('/api/saved-words', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          word: word.word,
+          meaning: word.correctAnswer,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSavedWordIds(prev => new Set(prev).add(word.word));
+        alert('Word saved successfully!');
+      } else {
+        alert(data.error || 'Failed to save word');
+      }
+    } catch (error) {
+      console.error('Error saving word:', error);
+      alert('Failed to save word');
+    } finally {
+      setSavingWord(null);
+    }
   };
 
   const handleNext = () => {
@@ -266,7 +303,42 @@ export default function TestPage() {
           {/* Question */}
           <div className="p-8">
             <div className="mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">{currentWord.word}</h2>
+              <div className="flex items-start justify-between mb-4">
+                <h2 className="text-3xl font-bold text-gray-900">{currentWord.word}</h2>
+                <button
+                  onClick={() => handleSaveWord(currentWord)}
+                  disabled={savingWord === currentWord.word || savedWordIds.has(currentWord.word)}
+                  className={`flex items-center px-4 py-2 rounded-lg font-semibold transition ${
+                    savedWordIds.has(currentWord.word)
+                      ? 'bg-green-100 text-green-700 cursor-not-allowed'
+                      : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                  }`}
+                >
+                  {savingWord === currentWord.word ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Saving...
+                    </>
+                  ) : savedWordIds.has(currentWord.word) ? (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Saved
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                      </svg>
+                      Save Word
+                    </>
+                  )}
+                </button>
+              </div>
               <p className="text-gray-600">Select the correct meaning:</p>
             </div>
 
